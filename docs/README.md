@@ -1,58 +1,143 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+# Carteira Financeira
+Desafio técnico Full Stack PHP: uma carteira digital com cadastro, autenticação, depósito, transferência entre usuários e reversão de operações, construída em Laravel seguindo o padrão de dupla entrada (double-entry ledger) usado por sistemas financeiros reais.
 
-## About Laravel
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Stack e Tecnologias
+| Tecnologias | Motivo      |
+| :---:   | :---:  |
+| PHP 8.4 / Laravel 13 | Escolhi o Laravel por ser um framework consolidado e por já oferecer diversos recursos importantes. Isso me permitiu focar mais na implementação das regras de negócio do que na criação de funcionalidades básicas. Também utilizei os Enums do PHP para evitar o uso de strings fixas no código, deixando a aplicação mais organizada e fácil de manter.   |
+| MySQL | O MySQL foi escolhido por fornecer recursos importantes para manter a consistência dos dados e garantir maior confiabilidade nas operações realizadas pelo sistema.|
+| Laravel Sanctum | Utilizei o Laravel Sanctum para a autenticação da API por ser uma solução oficial do framework, simples de configurar e suficiente para o projeto. |
+| Docker / Laravel Sai | Escolhi utilizar Docker com Laravel Sail para garantir que o ambiente de desenvolvimento fosse o mesmo em qualquer máquina. |
+| Bootstrap 5 | Usei Bootstrap 5 para desenvolver a interface de forma mais rápida. Como o principal objetivo do teste é o backend não vi necessidade de me aprofundar mais nesse aspecto |
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Double Entry-Ledger
 
-## Learning Laravel
+Este é o mesmo modelo contábil usado por bancos e por processadores de pagamento:
+ 
+> **O saldo nunca é escrito diretamente por uma regra de negócio. Ele é sempre a consequência de uma sequência imutável de lançamentos.**
+ 
+Cada operação financeira gera um ou mais registros em `ledger_entries`, cada um com:
+- `direction` — `credit` (entrada) ou `debit` (saída)
+- `amount` — o valor movimentado
+- `balance_after` — um snapshot do saldo resultante, logo após aquele lançamento
+Um **depósito** gera um lançamento (`credit`) na carteira do próprio usuário. Uma **transferência** gera **dois** lançamentos amarrados à mesma `transaction`: um `debit` na carteira de origem e um `credit` na carteira de destino.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Modelagem de Dados
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+<div align="center">
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+### Diagrama
 
-## Agentic Development
+![Diagrama ER](Diagrama.png)
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+<sub>Diagrama gerado refletindo as tabelas implementadas do projeto.</sub>
 
-```bash
-composer require laravel/boost --dev
+---
 
-php artisan boost:install
+### Wallets
+
+![Wallets](Database/Wallets.png)
+
+<sub>Responsável por armazenar o saldo de cada usuário e realizar o controle de concorrência por meio do campo <code>version</code>.</sub>
+
+---
+
+### Transactions
+
+![Transactions](Database/Transactions.png)
+
+<sub>Armazena todas as transações financeiras, incluindo depósitos, transferências e reversões.</sub>
+
+---
+
+### Ledger Entries
+
+![Ledger Entries](Database/LedgerEntries.png)
+
+<sub>Registra os lançamentos contábeis (débito e crédito) associados a cada transação.</sub>
+
+---
+
+### Reversals
+
+![Reversals](Database/Reversals.png)
+
+<sub>Armazena o vínculo entre uma transação original e sua respectiva reversão, evitando duplicidades.</sub>
+
+</div>
+
+## Arquitetura
+
+```
+app/
+├── Services/           # Regra de negócio isolada
+│   ├── DepositService.php
+│   ├── TransferService.php
+│   ├── ReversalService.php
+│   └── RegistrationService.php
+├── Models/             # Eloquent + relacionamentos
+├── Enums/              # TransactionType, TransactionStatus, LedgerDirection
+├── Http/
+│   ├── Controllers/
+│   │   ├── Web/        # Views Blade
+│   │   └── Api/        # JSON via Sanctum
+│   ├── Requests/        # Form Requests: validação compartilhada entre Web e API
+│   └── Resources/       # Transformação de Models para o formato JSON da API
+└── Exceptions/          # Exceptions de domínio com render() próprio
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+## Segurança
 
-## Contributing
+- **Hash de senha automático** via cast do Model (`'password' => 'hashed'`), usando bcrypt
+- **Proteção contra mass assignment** — `$fillable` explícito em todos os Models
+- **CSRF** em todos os formulários web (`@csrf`)
+- **Proteção contra IDOR** (Insecure Direct Object Reference) — antes de reverter qualquer transação, o sistema verifica que ela de fato envolve a carteira do usuário autenticado, tanto no Controller Web quanto no da API
+- **Prevenção de user enumeration** — o endpoint de login retorna a mesma mensagem genérica ("Credenciais inválidas") tanto para e-mail inexistente quanto para senha incorreta, para não revelar quais e-mails estão cadastrados
+- **Rate limiting** (`throttle:5,1`) nas rotas de login e registro, limitando a 5 tentativas por minuto por IP — mitigação direta contra força bruta
+- **Idempotência** via `idempotency_key` único, evitando que requisições duplicadas (clique duplo, retry de rede) processem a mesma operação mais de uma vez
+- **Consciência de configuração de ambiente** — `APP_DEBUG` deve ser `false` em produção; em desenvolvimento fica `true` para facilitar depuração, mas a diferença é documentada explicitamente neste README
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Tratamento de erros
 
-## Code of Conduct
+Exceptions de domínio (`app/Exceptions/`) encapsulam regras de negócio que podem falhar:
+ 
+```php
+public function render(Request $request): JsonResponse|RedirectResponse
+{
+    if ($request->expectsJson()) {
+        return response()->json(['message' => $this->getMessage()], 422);
+    }
+ 
+    return back()->with('error', $this->getMessage());
+}
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Testes
 
-## Security Vulnerabilities
+## Como Rodar o Projeto
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Pré-requisito: Docker instalado e rodando.
+ 
+```bash
+git clone <url-do-repositorio>
+cd carteira-financeira
+cp .env.example .env
+./vendor/bin/sail up -d
+./vendor/bin/sail artisan key:generate
+./vendor/bin/sail artisan migrate
+```
+ 
+Acesse a aplicação em `http://localhost`.
 
-## License
+## Oque Foi Implementado
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+- Cadastro e autenticação (Web e API)
+- Depósito, com abatimento correto de saldo negativo
+- Transferência entre usuários, com validação de saldo
+- Reversão de depósito e transferência, idempotente
+- Extrato paginado e pesquisável
+- API REST completa com Sanctum
+- Interface web funcional (dashboard, depósito, transferência, extrato)
