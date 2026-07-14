@@ -47,11 +47,7 @@ class TransactionController extends Controller
             abort(403);
         }
 
-        try {
-            $reversalService->execute($transaction, 'Estorno solicitado pelo usuário');
-        } catch (\Exception $e) {
-            return back()->with('error', $e->getMessage());
-        }
+        $reversalService->execute($transaction, 'Estorno solicitado pelo usuário');
 
         return back()->with('success', 'Transação estornada com sucesso.');
     }

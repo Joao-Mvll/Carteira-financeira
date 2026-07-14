@@ -10,6 +10,7 @@ use App\Models\Transaction;
 use App\Models\Wallet;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use App\Exceptions\TransactionNotReversibleException;
 
 class ReversalService
 {
@@ -33,7 +34,9 @@ class ReversalService
             }
 
             if ($original->status !== TransactionStatus::Completed) {
-                throw new \Exception("Somente transações concluídas podem ser estornadas.");
+                throw new TransactionNotReversibleException(
+                    'Somente transações concluídas podem ser estornadas.'
+                );
             }
 
             $entries = $original->ledgerEntries()->get();
