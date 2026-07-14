@@ -1,30 +1,19 @@
-<nav class="navbar navbar-expand-lg bg-white shadow-sm">
+<div class="np-topbar">
+    <h4>@yield('page-heading', 'Painel')</h4>
 
-    <div class="container-fluid">
+    <div class="np-topbar-right">
 
-        <span class="navbar-brand fw-bold">
-            Carteira Financeira
-        </span>
-
-        <div class="ms-auto">
-
-            <span class="me-3">
-
-                <i class="bi bi-person-circle"></i>
-
-                {{ auth()->user()->name ?? 'Visitante' }}
-
+        <div class="np-topbar-user">
+            <span class="np-avatar">
+                @php
+                    $parts = explode(' ', trim(auth()->user()->name ?? 'U'));
+                    $initials = mb_strtoupper(mb_substr($parts[0] ?? 'U', 0, 1) . mb_substr($parts[count($parts) - 1] ?? '', 0, 1));
+                @endphp
+                {{ $initials }}
             </span>
-
-            <form method="POST" action="{{ route('logout') }}" class="d-inline">
-                @csrf
-                <button type="submit" class="btn btn-outline-danger btn-sm">
-                    Logout
-                </button>
-            </form>
-
+            <div>
+                <div class="np-topbar-user-name">{{ auth()->user()->name }}</div>
+            </div>
         </div>
-
     </div>
-
-</nav>
+</div>

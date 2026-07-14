@@ -14,7 +14,7 @@ use Illuminate\Support\Str;
 
 class TransferService
 {
-    public function execute(Wallet $from, Wallet $to, float $amount, ?string $idempotencyKey = null): Transaction
+    public function execute(Wallet $from, Wallet $to, float $amount, ?string $idempotencyKey = null, ?string $description = null): Transaction
     {
         // Idempotência: se a chave já foi usada, devolve a transação existente
         // sem mover saldo novamente.
@@ -27,7 +27,7 @@ class TransferService
         }
 
         try {
-            return DB::transaction(function () use ($from, $to, $amount, $idempotencyKey) {
+            return DB::transaction(function () use ($from, $to, $amount, $idempotencyKey, $description) {
                 // Trava sempre na mesma ordem (menor id primeiro) para evitar deadlock
                 [$first, $second] = $from->id < $to->id ? [$from, $to] : [$to, $from];
 
@@ -48,6 +48,7 @@ class TransferService
                     'status' => TransactionStatus::Completed,
                     'amount' => $amount,
                     'idempotency_key' => $idempotencyKey ?? (string) Str::uuid(),
+                    'description' => $description,
                 ]);
 
                 // Débito na carteira origem

@@ -13,7 +13,7 @@ use Illuminate\Support\Str;
 
 class DepositService
 {
-    public function execute(Wallet $wallet, float $amount, ?string $idempotencyKey = null): Transaction
+    public function execute(Wallet $wallet, float $amount, ?string $idempotencyKey = null, ?string $description = null): Transaction
     {
         // Idempotência: se a chave já foi usada, devolve a transação existente
         // sem aplicar o saldo novamente.
@@ -26,7 +26,7 @@ class DepositService
         }
 
         try {
-            return DB::transaction(function () use ($wallet, $amount, $idempotencyKey) {
+            return DB::transaction(function () use ($wallet, $amount, $idempotencyKey, $description) {
                 $lockedWallet = Wallet::lockForUpdate()->find($wallet->id);
 
                 $transaction = Transaction::create([
@@ -34,6 +34,7 @@ class DepositService
                     'status' => TransactionStatus::Completed,
                     'amount' => $amount,
                     'idempotency_key' => $idempotencyKey ?? (string) Str::uuid(),
+                    'description' => $description,
                 ]);
 
                 $newBalance = $lockedWallet->balance + $amount;

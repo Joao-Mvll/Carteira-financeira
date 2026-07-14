@@ -11,17 +11,27 @@ use Illuminate\View\View;
 
 class TransactionController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
         $wallet = auth()->user()->wallet;
+        $search = trim((string) $request->query('q', ''));
 
         $transactions = $wallet
             ->ledgerEntries()
             ->with('transaction')
+            ->when($search !== '', function ($query) use ($search) {
+                // Pesquisa por descrição, tipo (deposit/transfer/reversal) ou valor.
+                $query->whereHas('transaction', function ($q) use ($search) {
+                    $q->where('description', 'like', "%{$search}%")
+                        ->orWhere('type', 'like', "%{$search}%")
+                        ->orWhere('amount', 'like', "%{$search}%");
+                });
+            })
             ->latest()
-            ->paginate(15);
+            ->paginate(15)
+            ->withQueryString();
 
-        return view('wallet.statement', compact('transactions'));
+        return view('wallet.statement', compact('transactions', 'search'));
     }
 
     public function reverse(Request $request, Transaction $transaction, ReversalService $reversalService): RedirectResponse

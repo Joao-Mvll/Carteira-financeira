@@ -26,6 +26,7 @@ class TransferRequest extends FormRequest
                 // não pode transferir para a própria conta
                 Rule::notIn([$this->user()?->email]),
             ],
+            'description' => ['nullable', 'string', 'max:255'],
         ];
     }
 
@@ -40,6 +41,7 @@ class TransferRequest extends FormRequest
             'amount.max' => 'O valor excede o limite permitido.',
             'email.exists' => 'Destinatário não encontrado.',
             'email.not_in' => 'Você não pode transferir para si mesmo.',
+            'description.max' => 'A descrição deve ter no máximo 255 caracteres.',
         ];
     }
 }

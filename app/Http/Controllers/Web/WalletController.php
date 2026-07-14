@@ -25,7 +25,11 @@ class WalletController extends Controller
 
     public function storeDeposit(DepositRequest $request, DepositService $depositService): RedirectResponse
     {
-        $depositService->execute($request->user()->wallet, (float) $request->validated('amount'));
+        $depositService->execute(
+            $request->user()->wallet,
+            (float) $request->validated('amount'),
+            description: $request->validated('description'),
+        );
 
         return redirect()->route('dashboard')
             ->with('success', 'Depósito realizado com sucesso.');
@@ -39,7 +43,12 @@ class WalletController extends Controller
         $to = User::where('email', $data['email'])->first()->wallet;
 
         // Saldo insuficiente lança InsufficientBalanceException, que se auto-renderiza.
-        $transferService->execute($from, $to, (float) $data['amount']);
+        $transferService->execute(
+            $from,
+            $to,
+            (float) $data['amount'],
+            description: $data['description'] ?? null,
+        );
 
         return redirect()->route('dashboard')
             ->with('success', 'Transferência realizada com sucesso.');

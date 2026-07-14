@@ -27,7 +27,11 @@ class WalletController extends Controller
     {
         $wallet = $request->user()->wallet;
 
-        $transaction = $depositService->execute($wallet, (float) $request->validated('amount'));
+        $transaction = $depositService->execute(
+            $wallet,
+            (float) $request->validated('amount'),
+            description: $request->validated('description'),
+        );
 
         return response()->json([
             'message' => 'Depósito realizado com sucesso.',
@@ -44,7 +48,12 @@ class WalletController extends Controller
         $to = User::where('email', $data['email'])->first()->wallet;
 
         // Saldo insuficiente lança InsufficientBalanceException (renderizada como 422 JSON).
-        $transaction = $transferService->execute($from, $to, (float) $data['amount']);
+        $transaction = $transferService->execute(
+            $from,
+            $to,
+            (float) $data['amount'],
+            description: $data['description'] ?? null,
+        );
 
         return response()->json([
             'message' => 'Transferência realizada com sucesso.',
