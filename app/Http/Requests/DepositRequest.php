@@ -2,10 +2,13 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Requests\Concerns\NormalizesBrazilianAmount;
 use Illuminate\Foundation\Http\FormRequest;
 
 class DepositRequest extends FormRequest
 {
+    use NormalizesBrazilianAmount;
+
     public function authorize(): bool
     {
         return true;

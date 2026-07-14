@@ -117,20 +117,53 @@ public function render(Request $request): JsonResponse|RedirectResponse
 
 ## Testes
 
-## Como Rodar o Projeto
 
-Pré-requisito: Docker instalado e rodando.
+## Como rodar o projeto
+ 
+O único pré-requisito é ter o **Docker** instalado e em execução. Não é necessário ter PHP, Composer ou qualquer outra ferramenta na máquina — tudo roda dentro de containers.
+ 
+### Passo 1 — Clonar o repositório
  
 ```bash
-git clone <url-do-repositorio>
+git clone https://github.com/Joao-Mvll/Carteira-financeira.git
 cd carteira-financeira
-cp .env.example .env
-./vendor/bin/sail up -d
-./vendor/bin/sail artisan key:generate
-./vendor/bin/sail artisan migrate
 ```
  
-Acesse a aplicação em `http://localhost`.
+### Passo 2 — Instalar as dependências do PHP
+
+Em vez de exigir Composer instalado na sua máquina, usamos um container temporário que já vem com tudo pronto, roda a instalação, e desaparece em seguida — sem deixar nada instalado permanentemente no seu sistema.
+ 
+**Windows (PowerShell):**
+```powershell
+docker run --rm -v "${PWD}:/var/www/html" -w /var/www/html laravelsail/php84-composer:latest composer install --ignore-platform-reqs
+```
+
+## Passo 3 — Criar o arquivo de ambiente (`.env`)
+ 
+**Windows (PowerShell):**
+```powershell
+copy .env.example .env
+```
+
+### Passo 4 — Subir os containers
+ 
+```bash
+docker compose up -d
+```
+ 
+Na primeira execução, o Docker vai baixar a imagem do MySQL e construir a imagem da aplicação — pode levar alguns minutos.
+ 
+### Passo 5 — Preparar a aplicação
+ 
+```bash
+docker compose exec laravel.test php artisan key:generate
+docker compose exec laravel.test php artisan migrate
+```
+ 
+### Passo 6 — Acessar
+ 
+Abra **http://localhost** no navegador. A tela de login deve aparecer.
+ 
 
 ## Oque Foi Implementado
 

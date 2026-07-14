@@ -8,4 +8,14 @@ enum TransactionStatus: string
     case Completed = 'completed';
     case Failed = 'failed';
     case Reversed = 'reversed';
+
+    public function label(): string
+    {
+        return match ($this) {
+            self::Pending => 'Pendente',
+            self::Completed => 'Concluída',
+            self::Failed => 'Falhou',
+            self::Reversed => 'Estornada',
+        };
+    }
 }

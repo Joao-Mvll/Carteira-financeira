@@ -7,7 +7,7 @@
     <h1>Bom te ver!</h1>
     <p class="np-form-lead">Entre na sua conta para continuar.</p>
 
-    <form method="POST" action="{{ route('login.attempt') }}">
+    <form method="POST" action="{{ route('login.attempt') }}" novalidate>
         @csrf
 
         <div class="mb-3">
@@ -24,7 +24,7 @@
             <label class="form-label">Senha</label>
             <input type="password" name="password"
                    class="form-control @error('password') is-invalid @enderror"
-                   placeholder="Mínimo 8 caracteres" required>
+                   placeholder="Sua senha" required>
             @error('password')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror

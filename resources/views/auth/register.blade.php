@@ -7,7 +7,7 @@
     <h1>Criar conta</h1>
     <p class="np-form-lead">Preencha os dados abaixo para começar.</p>
 
-    <form method="POST" action="{{ route('register.store') }}">
+    <form method="POST" action="{{ route('register.store') }}" novalidate>
         @csrf
 
         <div class="mb-3">
@@ -34,10 +34,11 @@
             <label class="form-label">Senha</label>
             <input type="password" name="password"
                    class="form-control @error('password') is-invalid @enderror"
-                   placeholder="Mínimo 8 caracteres" required>
+                   placeholder="Crie uma senha segura" required>
             @error('password')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
+            <div class="form-text">Mínimo de 8 caracteres, com letra maiúscula, minúscula e número.</div>
         </div>
 
         <div class="mb-4">

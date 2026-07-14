@@ -4,9 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', 'NovoPay')</title>
+    <script>
+        // anti-flash: aplica o estado salvo da sidebar antes do primeiro render
+        if (localStorage.getItem('np_sidebar_collapsed') === '1') {
+            document.documentElement.classList.add('np-sidebar-collapsed');
+        }
+    </script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css" rel="stylesheet">
     <style>
+        /*
+         * Convenção de botões (Bootstrap):
+         *  - ação principal do form ......... btn-primary
+         *  - ação secundária/navegação ...... btn-outline-primary
+         *  - ação destrutiva (estornar/sair)  btn-danger / btn-outline-danger
+         *  - ação neutra (fechar/cancelar) .. btn-outline-secondary
+         */
         :root {
             --np-dark: #0f1b2d;
             --np-blue: #2563eb;
@@ -136,6 +149,35 @@
 
         .np-logout-btn:hover { color: #fff; }
 
+        /* Sidebar recolhível — a classe é aplicada no <html> pelo script
+           anti-flash no <head> e alternada pelo módulo sidebar do app.js */
+        .np-sidebar { transition: width .15s ease; }
+
+        .np-sidebar-toggle {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            margin-left: auto;
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .np-sidebar-toggle:hover { background: rgba(255,255,255,.08); color: #fff; }
+
+        html.np-sidebar-collapsed .np-sidebar { width: 78px; }
+        html.np-sidebar-collapsed .np-sidebar-top,
+        html.np-sidebar-collapsed .np-sidebar-bottom { padding-left: .7rem; padding-right: .7rem; }
+        html.np-sidebar-collapsed .np-sidebar-brand { flex-direction: column; gap: .8rem; }
+        html.np-sidebar-collapsed .np-sidebar-toggle { margin-left: 0; }
+        html.np-sidebar-collapsed .np-nav-label { display: none; }
+        html.np-sidebar-collapsed .np-nav-link { justify-content: center; padding: .7rem .5rem; }
+        html.np-sidebar-collapsed .np-user-mini { justify-content: center; }
+        html.np-sidebar-collapsed .np-logout-btn { justify-content: center; width: 100%; }
+
         .np-content { flex: 1; min-width: 0; }
 
         .np-topbar {
@@ -170,6 +212,16 @@
         .np-topbar-user { display: flex; align-items: center; gap: .6rem; }
         .np-topbar-user-name { font-size: .88rem; font-weight: 600; color: var(--np-text); line-height: 1.2; }
         .np-topbar-user-role { font-size: .76rem; color: var(--np-text-muted); }
+
+        /* Texto longo com clamp de 3 linhas + "expandir" (ver [data-np-expand] no app.js) */
+        .np-clamp {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            word-break: break-word;
+        }
+        .np-clamp.np-expanded { display: block; overflow: visible; }
     </style>
 </head>
 <body>
@@ -183,6 +235,8 @@
         </div>
     </div>
 </div>
+@include('components.confirm-modal')
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{{ asset('js/app.js') }}?v=1"></script>
 </body>
 </html>

@@ -3,7 +3,6 @@
 namespace Tests\Feature\Api;
 
 use App\Enums\TransactionStatus;
-use App\Models\Transaction;
 use App\Models\User;
 use App\Models\Wallet;
 use App\Services\DepositService;
@@ -27,8 +26,8 @@ class WalletApiTest extends TestCase
         $response = $this->postJson('/api/register', [
             'name' => 'Ana',
             'email' => 'ana@example.com',
-            'password' => 'senha1234',
-            'password_confirmation' => 'senha1234',
+            'password' => 'Senha1234',
+            'password_confirmation' => 'Senha1234',
         ]);
 
         $response->assertCreated()
@@ -40,16 +39,16 @@ class WalletApiTest extends TestCase
 
     public function test_login_returns_a_token(): void
     {
-        $user = User::factory()->create(['password' => bcrypt('senha1234')]);
+        $user = User::factory()->create(['password' => bcrypt('Senha1234')]);
 
-        $this->postJson('/api/login', ['email' => $user->email, 'password' => 'senha1234'])
+        $this->postJson('/api/login', ['email' => $user->email, 'password' => 'Senha1234'])
             ->assertOk()
             ->assertJsonStructure(['token']);
     }
 
     public function test_login_fails_with_wrong_password(): void
     {
-        $user = User::factory()->create(['password' => bcrypt('senha1234')]);
+        $user = User::factory()->create(['password' => bcrypt('Senha1234')]);
 
         $this->postJson('/api/login', ['email' => $user->email, 'password' => 'errada'])
             ->assertUnauthorized();
@@ -148,7 +147,7 @@ class WalletApiTest extends TestCase
     public function test_statement_lists_ledger_entries(): void
     {
         $user = $this->userWithWallet(0);
-        (new DepositService())->execute($user->wallet, 50);
+        (new DepositService)->execute($user->wallet, 50);
         Sanctum::actingAs($user);
 
         $this->getJson('/api/statement')
@@ -159,7 +158,7 @@ class WalletApiTest extends TestCase
     public function test_user_can_reverse_own_transaction(): void
     {
         $user = $this->userWithWallet(100);
-        $deposit = (new DepositService())->execute($user->wallet, 50);
+        $deposit = (new DepositService)->execute($user->wallet, 50);
         Sanctum::actingAs($user);
 
         $this->postJson("/api/transactions/{$deposit->id}/reverse")
@@ -173,7 +172,7 @@ class WalletApiTest extends TestCase
     {
         $owner = $this->userWithWallet(100);
         $stranger = $this->userWithWallet(0);
-        $deposit = (new DepositService())->execute($owner->wallet, 50);
+        $deposit = (new DepositService)->execute($owner->wallet, 50);
 
         Sanctum::actingAs($stranger);
 

@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use App\Support\PasswordRules;
 use Illuminate\Foundation\Http\FormRequest;
 
-class RegisterRequest extends FormRequest
+class UpdatePasswordRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -18,8 +18,7 @@ class RegisterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
+            'current_password' => ['required', 'current_password'],
             'password' => ['required', 'string', 'confirmed', PasswordRules::default()],
         ];
     }

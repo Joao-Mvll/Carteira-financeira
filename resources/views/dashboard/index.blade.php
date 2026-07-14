@@ -16,9 +16,9 @@
     .np-balance-label { color: #94a3b8; font-size: .9rem; margin-bottom: .3rem; }
     .np-balance-amount { font-size: 2.4rem; font-weight: 700; margin-bottom: .9rem; }
     .np-balance-eye {
-        background: rgba(255,255,255,.08);
+        background: rgba(255,255,255,.12);
         border: none;
-        color: #cbd5e1;
+        color: #e2e8f0;
         width: 34px;
         height: 34px;
         border-radius: 9px;
@@ -152,8 +152,8 @@
     <div class="np-balance-label">Saldo disponível</div>
     <div class="d-flex align-items-center gap-2 mb-2">
         <div class="np-balance-amount mb-0" id="npBalanceAmount"
-             data-value="R$ {{ number_format($wallet->balance ?? 0, 2, ',', '.') }}">R$ {{ number_format($wallet->balance ?? 0, 2, ',', '.') }}</div>
-        <button type="button" id="npBalanceToggle" class="np-balance-eye" aria-label="Ocultar saldo" title="Ocultar saldo">
+             data-np-hideable>R$ {{ number_format($wallet->balance ?? 0, 2, ',', '.') }}</div>
+        <button type="button" id="npBalanceToggle" class="np-balance-eye" aria-label="Ocultar valores" title="Ocultar valores">
             <i class="bi bi-eye"></i>
         </button>
     </div>
@@ -199,7 +199,7 @@
                     <i class="bi bi-graph-up-arrow"></i>
                 </span>
             </div>
-            <div class="np-metric-value">R$ {{ number_format($entradas, 2, ',', '.') }}</div>
+            <div class="np-metric-value" data-np-hideable>R$ {{ number_format($entradas, 2, ',', '.') }}</div>
             @if(is_null($entradasChange))
                 <span class="np-metric-change text-muted">— vs mês passado</span>
             @else
@@ -217,7 +217,7 @@
                     <i class="bi bi-graph-down-arrow"></i>
                 </span>
             </div>
-            <div class="np-metric-value">R$ {{ number_format($saidas, 2, ',', '.') }}</div>
+            <div class="np-metric-value" data-np-hideable>R$ {{ number_format($saidas, 2, ',', '.') }}</div>
             @if(is_null($saidasChange))
                 <span class="np-metric-change text-muted">— vs mês passado</span>
             @else
@@ -235,7 +235,7 @@
                     <i class="bi bi-bar-chart-line"></i>
                 </span>
             </div>
-            <div class="np-metric-value">{{ $transactionsThisMonthCount }}</div>
+            <div class="np-metric-value" data-np-hideable="•••">{{ $transactionsThisMonthCount }}</div>
             <span class="np-metric-change text-muted">Este mês</span>
         </div>
     </div>
@@ -245,9 +245,11 @@
 <div class="np-tx-card">
     <div class="np-tx-header">
         <h6>Últimas transações</h6>
-        <a href="{{ route('wallet.statement') }}" class="np-link" style="font-size:.85rem;">
+        <button type="submit" class="btn btn-primary">
+            <a href="{{ route('wallet.statement') }}" class="text-decoration-none text-reset" style="font-size:.85rem;">
             Ver todas <i class="bi bi-chevron-right"></i>
-        </a>
+            </a>    
+        </button>
     </div>
 
     @forelse($transactions as $transaction)
@@ -272,50 +274,26 @@
                 </span>
                 <div>
                     <div class="np-tx-title">{{ $label }}</div>
-                    <div class="np-tx-subtitle">{{ ucfirst($transaction->status->value) }}</div>
+                    <div class="np-tx-subtitle">{{ $transaction->status->label() }}</div>
                 </div>
             </div>
             <div class="np-tx-right">
-                <div class="np-tx-amount" style="color: {{ $isCredit ? '#16a34a' : 'var(--np-text)' }};">
+                <div class="np-tx-amount" data-np-hideable style="color: {{ $isCredit ? '#16a34a' : 'var(--np-text)' }};">
                     {{ $isCredit ? '+' : '-' }}R$ {{ number_format($transaction->amount, 2, ',', '.') }}
                 </div>
                 <div class="np-tx-date">{{ $transaction->created_at->format('d/m/Y') }}</div>
             </div>
         </div>
     @empty
-        <div class="np-tx-row justify-content-center text-muted">
-            Nenhuma movimentação encontrada.
+        <div class="np-tx-row flex-column justify-content-center text-center py-5">
+            <i class="bi bi-receipt d-block text-muted" style="font-size:2.2rem;"></i>
+            <p class="fw-semibold mb-1 mt-2">Nenhuma movimentação ainda</p>
+            <p class="text-muted mb-3">Suas últimas transações aparecerão aqui.</p>
+            <a href="{{ route('wallet.deposit') }}" class="btn btn-sm btn-primary">
+                <i class="bi bi-plus-circle"></i> Fazer meu primeiro depósito
+            </a>
         </div>
     @endforelse
 </div>
-
-<script>
-    (function () {
-        var amountEl = document.getElementById('npBalanceAmount');
-        var toggle = document.getElementById('npBalanceToggle');
-        if (!amountEl || !toggle) return;
-
-        var real = amountEl.dataset.value;
-        var masked = 'R$ ••••••';
-        var icon = toggle.querySelector('i');
-
-        function apply(hidden) {
-            amountEl.textContent = hidden ? masked : real;
-            icon.className = hidden ? 'bi bi-eye-slash' : 'bi bi-eye';
-            var label = hidden ? 'Mostrar saldo' : 'Ocultar saldo';
-            toggle.setAttribute('aria-label', label);
-            toggle.setAttribute('title', label);
-        }
-
-        var hidden = localStorage.getItem('np_balance_hidden') === '1';
-        apply(hidden);
-
-        toggle.addEventListener('click', function () {
-            hidden = !hidden;
-            localStorage.setItem('np_balance_hidden', hidden ? '1' : '0');
-            apply(hidden);
-        });
-    })();
-</script>
 
 @endsection

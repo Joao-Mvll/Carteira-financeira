@@ -2,11 +2,14 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Requests\Concerns\NormalizesBrazilianAmount;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class TransferRequest extends FormRequest
 {
+    use NormalizesBrazilianAmount;
+
     public function authorize(): bool
     {
         return true;

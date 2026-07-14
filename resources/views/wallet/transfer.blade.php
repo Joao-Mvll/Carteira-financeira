@@ -1,6 +1,7 @@
 @extends('layout.app')
 
 @section('title', 'Transferir')
+@section('page-heading', 'Transferir')
 
 @section('content')
 
@@ -11,7 +12,11 @@
             <div class="card-header">Transferir para outro usuário</div>
             <div class="card-body">
 
-                <form method="POST" action="{{ route('wallet.transfer.store') }}">
+                <form method="POST" action="{{ route('wallet.transfer.store') }}" novalidate
+                      data-confirm
+                      data-confirm-title="Confirmar transferência"
+                      data-confirm-message="Transferir R$ {amount} para {email}?"
+                      data-confirm-label="Transferir">
                     @csrf
 
                     <div class="mb-3">
@@ -25,8 +30,9 @@
 
                     <div class="mb-2">
                         <label class="form-label">Valor (R$)</label>
-                        <input type="number" step="0.01" min="0.01" name="amount" id="amount"
-                               value="{{ old('amount') }}" class="form-control @error('amount') is-invalid @enderror" required>
+                        <input type="text" inputmode="decimal" data-money name="amount" id="amount"
+                               value="{{ old('amount') }}" class="form-control @error('amount') is-invalid @enderror"
+                               placeholder="0,00" autocomplete="off" required>
                         @error('amount')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -34,7 +40,7 @@
 
                     <div class="d-flex flex-wrap gap-2 mb-3">
                         @foreach ([10, 50, 100, 500] as $preset)
-                            <button type="button" class="btn btn-outline-secondary btn-sm np-quick-amount"
+                            <button type="button" class="btn btn-outline-primary btn-sm np-quick-amount"
                                     data-amount="{{ $preset }}">R$ {{ $preset }}</button>
                         @endforeach
                     </div>
@@ -61,14 +67,5 @@
     </div>
 </div>
 
-<script>
-    document.querySelectorAll('.np-quick-amount').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-            var input = document.getElementById('amount');
-            input.value = parseFloat(btn.dataset.amount).toFixed(2);
-            input.focus();
-        });
-    });
-</script>
 
 @endsection

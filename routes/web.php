@@ -1,10 +1,11 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Web\AuthController;
 use App\Http\Controllers\Web\DashboardController;
+use App\Http\Controllers\Web\ProfileController;
 use App\Http\Controllers\Web\TransactionController;
 use App\Http\Controllers\Web\WalletController;
+use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/login');
 
@@ -30,6 +31,15 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/transactions/{transaction}/reverse', [TransactionController::class, 'reverse'])
         ->name('wallet.reverse');
+
+    Route::get('/profile', [ProfileController::class, 'edit'])
+        ->name('profile.edit');
+
+    Route::patch('/profile', [ProfileController::class, 'update'])
+        ->name('profile.update');
+
+    Route::patch('/profile/password', [ProfileController::class, 'updatePassword'])
+        ->name('profile.password.update');
 
     Route::post('/logout', [AuthController::class, 'logout'])
         ->name('logout');
