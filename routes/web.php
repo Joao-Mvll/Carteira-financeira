@@ -35,7 +35,7 @@ Route::middleware('auth')->group(function () {
         ->name('logout');
 });
 
-Route::middleware('guest')->group(function () {
+Route::middleware(['guest', 'throttle:5,1'])->group(function () {
 
     Route::get('/login', [AuthController::class, 'login'])
         ->name('login');
