@@ -28,7 +28,6 @@ class TransactionController extends Controller
             ->ledgerEntries()
             ->with('transaction')
             ->when($search !== '', function ($query) use ($search) {
-                // Pesquisa por descrição, tipo (deposit/transfer/reversal) ou valor.
                 $query->whereHas('transaction', function ($q) use ($search) {
                     $q->where('description', 'like', "%{$search}%")
                         ->orWhere('type', 'like', "%{$search}%")

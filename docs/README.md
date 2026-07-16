@@ -117,6 +117,23 @@ public function render(Request $request): JsonResponse|RedirectResponse
 
 ## Testes
 
+Testes automatizados verificam se o código funciona corretamente sem precisar testar manualmente no navegador. Cada teste roda uma ação e compara o resultado com o valor esperado — se bater, passa; se não, mostra o erro.
+ 
+Rodam contra um banco de dados temporário, isolado do banco real da aplicação.
+ 
+### Como rodar
+ 
+```bash
+./vendor/bin/sail artisan test
+```
+ 
+### Saída esperada
+ 
+```
+Tests:    75 passed (216 assertions)
+Duration: 3.14s
+```
+ 
 
 ## Como rodar o projeto
  

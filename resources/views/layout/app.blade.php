@@ -3,9 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('title', 'NovoPay')</title>
     <script>
-        // anti-flash: aplica o estado salvo da sidebar antes do primeiro render
         if (localStorage.getItem('np_sidebar_collapsed') === '1') {
             document.documentElement.classList.add('np-sidebar-collapsed');
         }
@@ -13,13 +11,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css" rel="stylesheet">
     <style>
-        /*
-         * Convenção de botões (Bootstrap):
-         *  - ação principal do form ......... btn-primary
-         *  - ação secundária/navegação ...... btn-outline-primary
-         *  - ação destrutiva (estornar/sair)  btn-danger / btn-outline-danger
-         *  - ação neutra (fechar/cancelar) .. btn-outline-secondary
-         */
         :root {
             --np-dark: #0f1b2d;
             --np-blue: #2563eb;

@@ -189,7 +189,6 @@
     </div>
 </div>
 
-{{-- Métricas do mês --}}
 <div class="row g-3 mb-4">
     <div class="col-md-4">
         <div class="np-metric-card">
@@ -200,13 +199,6 @@
                 </span>
             </div>
             <div class="np-metric-value" data-np-hideable>R$ {{ number_format($entradas, 2, ',', '.') }}</div>
-            @if(is_null($entradasChange))
-                <span class="np-metric-change text-muted">— vs mês passado</span>
-            @else
-                <span class="np-metric-change" style="color: {{ $entradasChange >= 0 ? '#16a34a' : '#dc2626' }}">
-                    {{ $entradasChange >= 0 ? '+' : '' }}{{ number_format($entradasChange, 0) }}% vs mês passado
-                </span>
-            @endif
         </div>
     </div>
     <div class="col-md-4">
@@ -218,13 +210,6 @@
                 </span>
             </div>
             <div class="np-metric-value" data-np-hideable>R$ {{ number_format($saidas, 2, ',', '.') }}</div>
-            @if(is_null($saidasChange))
-                <span class="np-metric-change text-muted">— vs mês passado</span>
-            @else
-                <span class="np-metric-change" style="color: {{ $saidasChange <= 0 ? '#16a34a' : '#dc2626' }}">
-                    {{ $saidasChange >= 0 ? '+' : '' }}{{ number_format($saidasChange, 0) }}% vs mês passado
-                </span>
-            @endif
         </div>
     </div>
     <div class="col-md-4">
@@ -236,7 +221,6 @@
                 </span>
             </div>
             <div class="np-metric-value" data-np-hideable="•••">{{ $transactionsThisMonthCount }}</div>
-            <span class="np-metric-change text-muted">Este mês</span>
         </div>
     </div>
 </div>

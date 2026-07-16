@@ -47,7 +47,6 @@ class WalletController extends Controller
         $from = $request->user()->wallet;
         $to = User::where('email', $data['email'])->first()->wallet;
 
-        // Saldo insuficiente lança InsufficientBalanceException (renderizada como 422 JSON).
         $transaction = $transferService->execute(
             $from,
             $to,
